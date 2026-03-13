@@ -141,7 +141,7 @@
   /* ── ALARMA ── */
   .dc-value.alarm { color:var(--accent2) !important; }
   .dc-unit.alarm strong { color:var(--accent2); }
-  .alarm-icon { font-size:1.1rem; animation:blink 1s infinite; margin-left:.3rem; vertical-align:middle; }
+  .alarm-icon { font-size:1.1rem; animation:blink 1s infinite; margin-left:.4rem; vertical-align:middle; display:inline-block; filter:sepia(1) saturate(5) hue-rotate(310deg) brightness(1.2); }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
   td.alarm-cell { color:var(--accent2) !important; font-weight:700; }
 
@@ -473,33 +473,14 @@
   <div class="config-card" style="margin-bottom:1.5rem">
     <h3>🔗 Conexión con Google Sheets</h3>
     <p>Pegá la URL de tu <strong>Apps Script desplegado</strong> (termina en <strong>/exec</strong>)</p>
+    <p style="margin-top:.5rem;font-size:.7rem">💡 Los umbrales de alarma se leen automáticamente de la hoja <strong>CUPOS</strong> de tu planilla.</p>
     <input id="api-url-input" type="text" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
     <br>
     <button id="btn-connect" onclick="connectAPI()">Conectar y actualizar</button>
     <div id="connect-status"></div>
   </div>
 
-  <div class="config-card">
-    <h3>🚨 Umbrales de alarma por localidad</h3>
-    <p>Definí la cantidad máxima de días para cada tipo y localidad. Si se supera, aparece una alerta roja.</p>
-    <div style="overflow-x:auto">
-      <table class="threshold-table" id="threshold-table">
-        <thead>
-          <tr>
-            <th>Localidad</th>
-            <th>🔧 Instalación</th>
-            <th>🛠 Reparación</th>
-            <th>📦 Mudanzas</th>
-          </tr>
-        </thead>
-        <tbody id="threshold-body">
-          <tr><td colspan="4" style="color:var(--muted);padding:1rem">Cargando localidades...</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <button id="btn-save-thresholds" onclick="saveThresholds()">💾 Guardar umbrales</button>
-    <div id="threshold-status"></div>
-  </div>
+
 </div>
 
 <script>
@@ -507,7 +488,7 @@
 //  STATE
 // ════════════════════════════════════════
 const LS_KEY = 'dashboard_api_url';
-const LS_THRESHOLDS = 'dashboard_thresholds';
+
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzBZ7kv4PBglv7hzC_o7QB0QERtR5XFhSXwMTtljLEjp7ImHSufczIL_5wqFOCJcX-v/exec';
 const CONFIG_PWD = '98fnBUzcNR7w';
 let apiUrl = '';
@@ -663,66 +644,22 @@ function fetchData(cb) {
 // ════════════════════════════════════════
 //  RENDER
 // ════════════════════════════════════════
-function getThresholds() {
-  try { return JSON.parse(localStorage.getItem(LS_THRESHOLDS)) || {}; }
-  catch(e) { return {}; }
-}
-
 function getThreshold(localidad, tipo) {
-  var t = getThresholds();
-  return (t[localidad] && t[localidad][tipo] != null) ? Number(t[localidad][tipo]) : null;
+  if (!allData || !allData.umbrales) return null;
+  var u = allData.umbrales[localidad];
+  return (u && u[tipo] != null && u[tipo] > 0) ? u[tipo] : null;
 }
 
 function isAlarm(localidad, tipo, valor) {
   var th = getThreshold(localidad, tipo);
-  return th !== null && th > 0 && valor > th;
+  return th !== null && valor > th;
 }
 
 function renderAll() {
   if (!allData) return;
   renderLocTable(allData.localidades);
   renderDetailTable(allData.localidades);
-  renderThresholdTable(allData.localidades);
   if (selectedRow !== null && allData.localidades[selectedRow]) {
-    showDemora(allData.localidades[selectedRow], selectedRow);
-  }
-}
-
-function renderThresholdTable(locs) {
-  var tbody = document.getElementById('threshold-body');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  var t = getThresholds();
-  locs.forEach(function(loc) {
-    var name = loc.localidad;
-    var th = t[name] || {};
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td>' + esc(name) + '</td>' +
-      '<td style="text-align:center"><input class="threshold-input" type="number" min="0" data-loc="'+esc(name)+'" data-tipo="inst" value="'+(th.inst||'')+'"></td>' +
-      '<td style="text-align:center"><input class="threshold-input" type="number" min="0" data-loc="'+esc(name)+'" data-tipo="rep"  value="'+(th.rep||'')+'"></td>' +
-      '<td style="text-align:center"><input class="threshold-input" type="number" min="0" data-loc="'+esc(name)+'" data-tipo="mud"  value="'+(th.mud||'')+'"></td>';
-    tbody.appendChild(tr);
-  });
-}
-
-function saveThresholds() {
-  var inputs = document.querySelectorAll('.threshold-input');
-  var t = {};
-  inputs.forEach(function(inp) {
-    var loc = inp.getAttribute('data-loc');
-    var tipo = inp.getAttribute('data-tipo');
-    var val = inp.value.trim();
-    if (!t[loc]) t[loc] = {};
-    t[loc][tipo] = val !== '' ? Number(val) : null;
-  });
-  localStorage.setItem(LS_THRESHOLDS, JSON.stringify(t));
-  var st = document.getElementById('threshold-status');
-  st.textContent = '✓ Umbrales guardados';
-  setTimeout(function(){ st.textContent=''; }, 2000);
-  // Re-render para aplicar alarmas inmediatamente
-  if (allData) renderAll();
-  if (selectedRow !== null && allData && allData.localidades[selectedRow]) {
     showDemora(allData.localidades[selectedRow], selectedRow);
   }
 }
@@ -784,7 +721,7 @@ function showDemora(loc, i) {
     if (alarm) {
       var icon = document.createElement('span');
       icon.className = 'alarm-icon';
-      icon.textContent = '🔴';
+      icon.textContent = '⚠️';
       el.parentNode.insertBefore(icon, el.nextSibling);
     }
   });
@@ -838,7 +775,7 @@ function loadDemoData(keepError) {
 function td(n)  { return '<td>' + (n===0 ? '<span style="color:var(--border)">0</span>' : fmt(n)) + '</td>'; }
 function tdAlarm(n, alarm) {
   var cls = alarm ? 'alarm-cell' : (n===0 ? 'zero' : '');
-  var icon = alarm ? ' 🔴' : '';
+  var icon = alarm ? ' <span class="alarm-icon" style="font-size:.8rem">⚠️</span>' : '';
   return '<td class="' + cls + '">' + fmt(n) + icon + '</td>';
 }
 function tdV(n) { return '<td class="' + (n>0?'vencido':'zero') + '">' + fmt(n) + '</td>'; }
