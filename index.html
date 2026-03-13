@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Coordinación</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -45,6 +48,12 @@
     font-size:.65rem; cursor:pointer; transition:all .2s;
   }
   #btn-refresh:hover { border-color:var(--accent); color:var(--accent); }
+  #btn-config {
+    background:transparent; border:1px solid var(--border); color:var(--muted);
+    padding:.35rem .7rem; border-radius:7px; font-size:.9rem;
+    cursor:pointer; transition:all .2s; line-height:1;
+  }
+  #btn-config:hover { border-color:var(--accent); transform:rotate(30deg); }
 
   /* ── TABS ── */
   .tabs {
@@ -141,7 +150,15 @@
   /* ── ALARMA ── */
   .dc-value.alarm { color:var(--accent2) !important; }
   .dc-unit.alarm strong { color:var(--accent2); }
-  .alarm-icon { font-size:1.1rem; animation:blink 1s infinite; margin-left:.4rem; vertical-align:middle; display:inline-block; filter:sepia(1) saturate(5) hue-rotate(310deg) brightness(1.2); }
+  .alarm-icon {
+    display:inline-block;
+    width:1.1rem; height:1rem;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Cpolygon points='50,4 96,86 4,86' fill='%23cc0000' stroke='%237a0000' stroke-width='3' stroke-linejoin='round'/%3E%3Cpolygon points='50,8 92,84 8,84' fill='%23ff2200' /%3E%3Crect x='44' y='30' width='12' height='30' rx='5' fill='white'/%3E%3Ccircle cx='50' cy='72' r='7' fill='white'/%3E%3C/svg%3E") center/contain no-repeat;
+    animation:blink 1s infinite;
+    margin-left:.4rem;
+    vertical-align:middle;
+  }
+  .alarm-icon::after { content:''; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
   td.alarm-cell { color:var(--accent2) !important; font-weight:700; }
 
@@ -364,13 +381,14 @@
     <div id="last-update"></div>
     <div id="status-dot"></div>
     <button id="btn-refresh" onclick="fetchData()">↻</button>
+    <button id="btn-config" onclick="switchTab('config')" title="Configuración">⚙️</button>
   </div>
 </header>
 
 <nav class="tabs">
   <button class="tab-btn active" onclick="switchTab('demoras')">📍 Demoras por localidad</button>
   <button class="tab-btn" onclick="switchTab('detalle')">📋 Detalle completo</button>
-  <button class="tab-btn" onclick="switchTab('config')">⚙️ Configuración</button>
+
 </nav>
 
 <!-- ══ TAB: DEMORAS ══ -->
@@ -488,6 +506,7 @@
 //  STATE
 // ════════════════════════════════════════
 const LS_KEY = 'dashboard_api_url';
+const CACHE_VER = '2.1';
 
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzBZ7kv4PBglv7hzC_o7QB0QERtR5XFhSXwMTtljLEjp7ImHSufczIL_5wqFOCJcX-v/exec';
 const CONFIG_PWD = '98fnBUzcNR7w';
@@ -502,6 +521,13 @@ let configUnlocked = false;
 //  INIT
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', function() {
+  // Limpiar cache viejo si la versión cambió
+  if (localStorage.getItem('dash_ver') !== CACHE_VER) {
+    var savedUrl = localStorage.getItem(LS_KEY);
+    localStorage.clear();
+    if (savedUrl) localStorage.setItem(LS_KEY, savedUrl);
+    localStorage.setItem('dash_ver', CACHE_VER);
+  }
   var saved = localStorage.getItem(LS_KEY) || DEFAULT_API_URL;
   apiUrl = saved;
   document.getElementById('api-url-input').value = saved;
@@ -721,7 +747,7 @@ function showDemora(loc, i) {
     if (alarm) {
       var icon = document.createElement('span');
       icon.className = 'alarm-icon';
-      icon.textContent = '⚠️';
+      icon.textContent = '';
       el.parentNode.insertBefore(icon, el.nextSibling);
     }
   });
@@ -775,7 +801,7 @@ function loadDemoData(keepError) {
 function td(n)  { return '<td>' + (n===0 ? '<span style="color:var(--border)">0</span>' : fmt(n)) + '</td>'; }
 function tdAlarm(n, alarm) {
   var cls = alarm ? 'alarm-cell' : (n===0 ? 'zero' : '');
-  var icon = alarm ? ' <span class="alarm-icon" style="font-size:.8rem">⚠️</span>' : '';
+  var icon = alarm ? ' <span class="alarm-icon" style="width:.85rem;height:.75rem"></span>' : '';
   return '<td class="' + cls + '">' + fmt(n) + icon + '</td>';
 }
 function tdV(n) { return '<td class="' + (n>0?'vencido':'zero') + '">' + fmt(n) + '</td>'; }
