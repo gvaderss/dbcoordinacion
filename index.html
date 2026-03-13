@@ -806,7 +806,7 @@ function tdAlarm(n, alarm) {
 }
 function tdV(n) { return '<td class="' + (n>0?'vencido':'zero') + '">' + fmt(n) + '</td>'; }
 function fmt(n) { return n%1===0 ? n : n.toFixed(1); }
-function cleanLoc(s) { return String(s).replace(/,?\s*Santa Cruz\s*/gi, '').trim(); }
+function cleanLoc(s) { return String(s).replace(/\(\d+\)\s*Santa Cruz\s*/gi, function(m){ return m.replace(/\s*Santa Cruz\s*/i,''); }).trim(); }
 function esc(s) { return cleanLoc(String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
 function animateValue(id, target) {
