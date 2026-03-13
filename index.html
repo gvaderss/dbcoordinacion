@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Dashboard Operativo</title>
+<title>Coordinación</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -135,7 +135,15 @@
   .demora-card .dc-icon { font-size:1.1rem; opacity:.5; margin-bottom:.6rem; }
   .demora-card .dc-label { font-size:.6rem; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); margin-bottom:.5rem; }
   .demora-card .dc-value { font-family:'Syne',sans-serif; font-size:2.4rem; font-weight:800; color:var(--card-color); line-height:1; }
-  .demora-card .dc-unit { font-size:.65rem; color:var(--muted); margin-top:.3rem; }
+  .demora-card .dc-unit { font-size:.75rem; color:var(--muted); margin-top:.3rem; letter-spacing:.1em; }
+  .demora-card .dc-unit strong { color:var(--text); font-size:.8rem; letter-spacing:.15em; }
+
+  /* ── ALARMA ── */
+  .dc-value.alarm { color:var(--accent2) !important; }
+  .dc-unit.alarm strong { color:var(--accent2); }
+  .alarm-icon { font-size:1.1rem; animation:blink 1s infinite; margin-left:.3rem; vertical-align:middle; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  td.alarm-cell { color:var(--accent2) !important; font-weight:700; }
 
   /* ── TABLA DETALLE COMPLETO ── */
   .table-wrapper { overflow-x:auto; border:1px solid var(--border); border-radius:14px; background:var(--surface); }
@@ -184,6 +192,27 @@
   }
   #btn-connect:hover { opacity:.85; }
   #connect-status { font-size:.7rem; margin-top:.8rem; min-height:1.2rem; }
+  .threshold-table { width:100%; border-collapse:collapse; margin-top:.8rem; font-size:.75rem; }
+  .threshold-table th { background:var(--surface2); padding:.6rem .8rem; text-align:left; font-family:'Syne',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+  .threshold-table th:not(:first-child) { text-align:center; color:var(--text); }
+  .threshold-table td { padding:.5rem .8rem; border-bottom:1px solid var(--border); color:var(--text); }
+  .threshold-table tr:last-child td { border-bottom:none; }
+  .threshold-table td:first-child { font-family:'Syne',sans-serif; font-weight:600; font-size:.75rem; }
+  .threshold-input {
+    width:70px; background:var(--bg); border:1px solid var(--border);
+    color:var(--text); padding:.3rem .5rem; border-radius:6px;
+    font-family:'DM Mono',monospace; font-size:.75rem; text-align:center; outline:none;
+    transition:border-color .2s;
+  }
+  .threshold-input:focus { border-color:var(--accent); }
+  #btn-save-thresholds {
+    background:var(--surface2); color:var(--accent); border:1px solid var(--accent);
+    padding:.5rem 1.2rem; border-radius:8px; font-family:'Syne',sans-serif;
+    font-weight:700; font-size:.75rem; cursor:pointer; margin-top:1rem;
+    transition:all .2s; letter-spacing:.05em;
+  }
+  #btn-save-thresholds:hover { background:var(--accent); color:#0d0f14; }
+  #threshold-status { font-size:.7rem; color:var(--accent); margin-top:.5rem; min-height:1rem; }
   #connect-status.ok    { color:var(--accent); }
   #connect-status.error { color:var(--accent2); }
 
@@ -327,7 +356,7 @@
 
 <header>
   <div class="header-left">
-    <h1>Dashboard <span>Operativo</span>
+    <h1>Dashboard <span>Coordinación</span>
       <span id="demo-badge" class="demo-badge" style="display:none">Demo</span>
     </h1>
   </div>
@@ -358,19 +387,19 @@
         <div class="dc-icon">🔧</div>
         <div class="dc-label">Instalación</div>
         <div class="dc-value" id="dc-inst">—</div>
-        <div class="dc-unit"><strong>días</strong></div>
+        <div class="dc-unit"><strong>DÍAS</strong></div>
       </div>
       <div class="demora-card rep">
         <div class="dc-icon">🛠</div>
         <div class="dc-label">Reparación</div>
         <div class="dc-value" id="dc-rep">—</div>
-        <div class="dc-unit">días</div>
+        <div class="dc-unit"><strong>DÍAS</strong></div>
       </div>
       <div class="demora-card mud">
         <div class="dc-icon">📦</div>
         <div class="dc-label">Mudanzas</div>
         <div class="dc-value" id="dc-mud">—</div>
-        <div class="dc-unit">días</div>
+        <div class="dc-unit"><strong>DÍAS</strong></div>
       </div>
     </div>
   </div>
@@ -441,13 +470,35 @@
 
 <!-- ══ TAB: CONFIG ══ -->
 <div id="tab-config" class="tab-panel">
-  <div class="config-card">
+  <div class="config-card" style="margin-bottom:1.5rem">
     <h3>🔗 Conexión con Google Sheets</h3>
     <p>Pegá la URL de tu <strong>Apps Script desplegado</strong> (termina en <strong>/exec</strong>)</p>
     <input id="api-url-input" type="text" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
     <br>
     <button id="btn-connect" onclick="connectAPI()">Conectar y actualizar</button>
     <div id="connect-status"></div>
+  </div>
+
+  <div class="config-card">
+    <h3>🚨 Umbrales de alarma por localidad</h3>
+    <p>Definí la cantidad máxima de días para cada tipo y localidad. Si se supera, aparece una alerta roja.</p>
+    <div style="overflow-x:auto">
+      <table class="threshold-table" id="threshold-table">
+        <thead>
+          <tr>
+            <th>Localidad</th>
+            <th>🔧 Instalación</th>
+            <th>🛠 Reparación</th>
+            <th>📦 Mudanzas</th>
+          </tr>
+        </thead>
+        <tbody id="threshold-body">
+          <tr><td colspan="4" style="color:var(--muted);padding:1rem">Cargando localidades...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <button id="btn-save-thresholds" onclick="saveThresholds()">💾 Guardar umbrales</button>
+    <div id="threshold-status"></div>
   </div>
 </div>
 
@@ -456,6 +507,8 @@
 //  STATE
 // ════════════════════════════════════════
 const LS_KEY = 'dashboard_api_url';
+const LS_THRESHOLDS = 'dashboard_thresholds';
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzBZ7kv4PBglv7hzC_o7QB0QERtR5XFhSXwMTtljLEjp7ImHSufczIL_5wqFOCJcX-v/exec';
 const CONFIG_PWD = '98fnBUzcNR7w';
 let apiUrl = '';
 let allData = null;
@@ -468,14 +521,10 @@ let configUnlocked = false;
 //  INIT
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', function() {
-  var saved = localStorage.getItem(LS_KEY);
-  if (saved) {
-    apiUrl = saved;
-    document.getElementById('api-url-input').value = saved;
-    fetchData();
-  } else {
-    loadDemoData();
-  }
+  var saved = localStorage.getItem(LS_KEY) || DEFAULT_API_URL;
+  apiUrl = saved;
+  document.getElementById('api-url-input').value = saved;
+  fetchData();
 });
 
 // ════════════════════════════════════════
@@ -614,12 +663,66 @@ function fetchData(cb) {
 // ════════════════════════════════════════
 //  RENDER
 // ════════════════════════════════════════
+function getThresholds() {
+  try { return JSON.parse(localStorage.getItem(LS_THRESHOLDS)) || {}; }
+  catch(e) { return {}; }
+}
+
+function getThreshold(localidad, tipo) {
+  var t = getThresholds();
+  return (t[localidad] && t[localidad][tipo] != null) ? Number(t[localidad][tipo]) : null;
+}
+
+function isAlarm(localidad, tipo, valor) {
+  var th = getThreshold(localidad, tipo);
+  return th !== null && th > 0 && valor > th;
+}
+
 function renderAll() {
   if (!allData) return;
   renderLocTable(allData.localidades);
   renderDetailTable(allData.localidades);
-  // Si había una localidad seleccionada, refrescarla
+  renderThresholdTable(allData.localidades);
   if (selectedRow !== null && allData.localidades[selectedRow]) {
+    showDemora(allData.localidades[selectedRow], selectedRow);
+  }
+}
+
+function renderThresholdTable(locs) {
+  var tbody = document.getElementById('threshold-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  var t = getThresholds();
+  locs.forEach(function(loc) {
+    var name = loc.localidad;
+    var th = t[name] || {};
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + esc(name) + '</td>' +
+      '<td style="text-align:center"><input class="threshold-input" type="number" min="0" data-loc="'+esc(name)+'" data-tipo="inst" value="'+(th.inst||'')+'"></td>' +
+      '<td style="text-align:center"><input class="threshold-input" type="number" min="0" data-loc="'+esc(name)+'" data-tipo="rep"  value="'+(th.rep||'')+'"></td>' +
+      '<td style="text-align:center"><input class="threshold-input" type="number" min="0" data-loc="'+esc(name)+'" data-tipo="mud"  value="'+(th.mud||'')+'"></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function saveThresholds() {
+  var inputs = document.querySelectorAll('.threshold-input');
+  var t = {};
+  inputs.forEach(function(inp) {
+    var loc = inp.getAttribute('data-loc');
+    var tipo = inp.getAttribute('data-tipo');
+    var val = inp.value.trim();
+    if (!t[loc]) t[loc] = {};
+    t[loc][tipo] = val !== '' ? Number(val) : null;
+  });
+  localStorage.setItem(LS_THRESHOLDS, JSON.stringify(t));
+  var st = document.getElementById('threshold-status');
+  st.textContent = '✓ Umbrales guardados';
+  setTimeout(function(){ st.textContent=''; }, 2000);
+  // Re-render para aplicar alarmas inmediatamente
+  if (allData) renderAll();
+  if (selectedRow !== null && allData && allData.localidades[selectedRow]) {
     showDemora(allData.localidades[selectedRow], selectedRow);
   }
 }
@@ -635,11 +738,12 @@ function renderLocTable(locs) {
   locs.forEach(function(loc, i) {
     var tr = document.createElement('tr');
     if (selectedRow === i) tr.classList.add('selected');
+    var name = loc.localidad;
     tr.innerHTML =
-      '<td class="td-loc">' + esc(loc.localidad) + '</td>' +
-      td(loc.instalacion.total) +
-      td(loc.reparacion.total) +
-      td(loc.mudanzas.total) +
+      '<td class="td-loc">' + esc(name) + '</td>' +
+      tdAlarm(loc.instalacion.total, isAlarm(name,'inst',loc.demora.instalacion)) +
+      tdAlarm(loc.reparacion.total,  isAlarm(name,'rep', loc.demora.reparacion))  +
+      tdAlarm(loc.mudanzas.total,    isAlarm(name,'mud', loc.demora.mudanzas))    +
       td(loc.totales.total);
     tr.addEventListener('click', function() { selectRow(i); });
     tbody.appendChild(tr);
@@ -662,6 +766,28 @@ function showDemora(loc, i) {
   animateValue('dc-inst', loc.demora.instalacion);
   animateValue('dc-rep',  loc.demora.reparacion);
   animateValue('dc-mud',  loc.demora.mudanzas);
+
+  // Alarmas en tarjetas
+  var tipos = [
+    {id:'dc-inst', tipo:'inst', val:loc.demora.instalacion, unit: document.querySelector('.demora-card.inst .dc-unit')},
+    {id:'dc-rep',  tipo:'rep',  val:loc.demora.reparacion,  unit: document.querySelector('.demora-card.rep .dc-unit')},
+    {id:'dc-mud',  tipo:'mud',  val:loc.demora.mudanzas,    unit: document.querySelector('.demora-card.mud .dc-unit')},
+  ];
+  tipos.forEach(function(t) {
+    var el = document.getElementById(t.id);
+    var alarm = isAlarm(loc.localidad, t.tipo, t.val);
+    el.classList.toggle('alarm', alarm);
+    if (t.unit) t.unit.classList.toggle('alarm', alarm);
+    // Ícono de alarma
+    var existingIcon = el.parentNode.querySelector('.alarm-icon');
+    if (existingIcon) existingIcon.remove();
+    if (alarm) {
+      var icon = document.createElement('span');
+      icon.className = 'alarm-icon';
+      icon.textContent = '🔴';
+      el.parentNode.insertBefore(icon, el.nextSibling);
+    }
+  });
 }
 
 // Tabla detalle (sin demora)
@@ -710,6 +836,11 @@ function loadDemoData(keepError) {
 //  HELPERS
 // ════════════════════════════════════════
 function td(n)  { return '<td>' + (n===0 ? '<span style="color:var(--border)">0</span>' : fmt(n)) + '</td>'; }
+function tdAlarm(n, alarm) {
+  var cls = alarm ? 'alarm-cell' : (n===0 ? 'zero' : '');
+  var icon = alarm ? ' 🔴' : '';
+  return '<td class="' + cls + '">' + fmt(n) + icon + '</td>';
+}
 function tdV(n) { return '<td class="' + (n>0?'vencido':'zero') + '">' + fmt(n) + '</td>'; }
 function fmt(n) { return n%1===0 ? n : n.toFixed(1); }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
