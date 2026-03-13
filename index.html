@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Operativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0d0f14;
+    --surface:   #13161e;
+    --surface2:  #1a1e28;
+    --border:    #242836;
+    --accent:    #4fffb0;
+    --accent2:   #ff6b6b;
+    --accent3:   #ffd166;
+    --text:      #e8eaf0;
+    --muted:     #6b7280;
+    --inst:      #4fffb0;
+    --rep:       #60a5fa;
+    --mud:       #c084fc;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 2rem;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(79,255,176,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(96,165,250,0.05) 0%, transparent 50%);
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .header-left h1 span { color: var(--accent); }
+  .header-left p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  #last-update {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: right;
+  }
+  #status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.4s;
+  }
+  #status-dot.ok   { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+  #status-dot.error{ background: var(--accent2); }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  /* ── CONFIG BANNER ── */
+  #config-banner {
+    background: linear-gradient(135deg, rgba(79,255,176,0.08), rgba(96,165,250,0.08));
+    border: 1px solid rgba(79,255,176,0.25);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  #config-banner .icon { font-size: 1.4rem; }
+  #config-banner p { font-size: 0.78rem; color: #a0aec0; line-height: 1.6; }
+  #config-banner strong { color: var(--accent); font-weight: 600; }
+  #api-input-row {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
+  }
+  #api-url-input {
+    flex: 1;
+    min-width: 260px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #api-url-input:focus { border-color: var(--accent); }
+  #btn-connect {
+    background: var(--accent);
+    color: #0d0f14;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  #btn-connect:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* ── SECCIÓN KPI DEMORA ── */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); border-color: var(--card-accent); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent);
+  }
+  .kpi-card.inst { --card-accent: var(--inst); }
+  .kpi-card.rep  { --card-accent: var(--rep); }
+  .kpi-card.mud  { --card-accent: var(--mud); }
+
+  .kpi-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+  .kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--card-accent);
+  }
+  .kpi-unit {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+  .kpi-icon {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    font-size: 1.4rem;
+    opacity: 0.3;
+  }
+
+  /* ── TABLA DE LOCALIDADES ── */
+  .table-section { margin-bottom: 2.5rem; }
+
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  thead tr.group-header th {
+    background: var(--surface2);
+    padding: 0.7rem 1rem;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  thead tr.group-header th.th-inst { color: var(--inst); border-bottom-color: var(--inst); }
+  thead tr.group-header th.th-rep  { color: var(--rep);  border-bottom-color: var(--rep);  }
+  thead tr.group-header th.th-mud  { color: var(--mud);  border-bottom-color: var(--mud);  }
+  thead tr.group-header th.th-tot  { color: var(--accent3); border-bottom-color: var(--accent3); }
+  thead tr.group-header th.th-dem  { color: var(--accent2); border-bottom-color: var(--accent2); }
+
+  thead tr.sub-header th {
+    background: var(--surface);
+    padding: 0.5rem 0.8rem;
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 0.7rem 0.8rem;
+    text-align: center;
+    color: var(--text);
+  }
+  tbody td.td-loc {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    padding-left: 1.2rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+  }
+  td.vencido { color: var(--accent2); font-weight: 600; }
+  td.demora  { color: var(--accent3); font-weight: 500; }
+  td.zero    { color: var(--border); }
+
+  /* ── LOADING / ERROR ── */
+  #loading-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    gap: 1rem;
+    transition: opacity 0.4s;
+  }
+  #loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading-overlay p { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.12em; }
+
+  #error-msg {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+
+  /* ── REFRESH BTN ── */
+  #btn-refresh {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── DEMO MODE BADGE ── */
+  .demo-badge {
+    display: inline-block;
+    background: rgba(255,209,102,0.15);
+    color: var(--accent3);
+    border: 1px solid rgba(255,209,102,0.3);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-left: 0.6rem;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p>CARGANDO DATOS...</p>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <h1>Dashboard <span>Operativo</span> <span id="demo-badge" class="demo-badge" style="display:none">Demo</span></h1>
+    <p>Gestión de localidades · Instalación · Reparación · Mudanzas</p>
+  </div>
+  <div class="header-right">
+    <div id="last-update">Actualizando...</div>
+    <div id="status-dot"></div>
+    <button id="btn-refresh" onclick="fetchData()">↻ Actualizar</button>
+  </div>
+</header>
+
+<!-- CONFIG BANNER -->
+<div id="config-banner">
+  <div class="icon">🔗</div>
+  <div style="flex:1">
+    <p><strong>Conectá tu Google Sheet</strong> — Pegá la URL de tu Apps Script desplegado y hacé clic en Conectar.</p>
+    <p style="margin-top:0.3rem">Si no tenés la URL todavía, revisá el archivo <strong>google_apps_script.js</strong> para las instrucciones.</p>
+    <div id="api-input-row">
+      <input id="api-url-input" type="text" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+      <button id="btn-connect" onclick="connectAPI()">Conectar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ERROR -->
+<div id="error-msg"></div>
+
+<!-- KPIs DEMORA -->
+<div class="section-label">⏱ Demora real promedio por tipo</div>
+<div class="kpi-grid">
+  <div class="kpi-card inst">
+    <div class="kpi-icon">🔧</div>
+    <div class="kpi-label">Instalación</div>
+    <div class="kpi-value" id="kpi-dem-inst">—</div>
+    <div class="kpi-unit">días promedio</div>
+  </div>
+  <div class="kpi-card rep">
+    <div class="kpi-icon">🛠</div>
+    <div class="kpi-label">Reparación</div>
+    <div class="kpi-value" id="kpi-dem-rep">—</div>
+    <div class="kpi-unit">días promedio</div>
+  </div>
+  <div class="kpi-card mud">
+    <div class="kpi-icon">📦</div>
+    <div class="kpi-label">Mudanzas</div>
+    <div class="kpi-value" id="kpi-dem-mud">—</div>
+    <div class="kpi-unit">días promedio</div>
+  </div>
+</div>
+
+<!-- TABLA LOCALIDADES -->
+<div class="table-section">
+  <div class="section-label">📍 Detalle por localidad</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr class="group-header">
+          <th rowspan="2" style="text-align:left; padding-left:1.2rem">Localidad</th>
+          <th colspan="3" class="th-inst">Instalación</th>
+          <th colspan="3" class="th-rep">Reparación</th>
+          <th colspan="3" class="th-mud">Mudanzas</th>
+          <th colspan="3" class="th-tot">Totales</th>
+          <th colspan="3" class="th-dem">Demora Real (días)</th>
+        </tr>
+        <tr class="sub-header">
+          <th>Pactados</th><th>Vencidos</th><th>Total</th>
+          <th>Pactados</th><th>Vencidos</th><th>Total</th>
+          <th>Pactados</th><th>Vencidos</th><th>Total</th>
+          <th>Pactados</th><th>Vencidos</th><th>Total</th>
+          <th>Inst.</th><th>Rep.</th><th>Mud.</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="16" style="text-align:center; color:var(--muted); padding:2rem">
+          Conectá tu API para ver los datos
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIGURACIÓN
+// ═══════════════════════════════════════════
+const REFRESH_INTERVAL_MS = 60 * 1000; // Auto-refresh cada 60 segundos
+const LS_KEY = 'dashboard_api_url';
+
+let apiUrl = localStorage.getItem(LS_KEY) || '';
+let refreshTimer = null;
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  hideLoading();
+  if (apiUrl) {
+    document.getElementById('api-url-input').value = apiUrl;
+    fetchData();
+  } else {
+    loadDemoData();
+  }
+});
+
+function connectAPI() {
+  const input = document.getElementById('api-url-input').value.trim();
+  if (!input.startsWith('http')) {
+    showError('URL inválida. Asegurate de pegar la URL completa de tu Apps Script.');
+    return;
+  }
+  apiUrl = input;
+  localStorage.setItem(LS_KEY, apiUrl);
+  document.getElementById('demo-badge').style.display = 'none';
+  fetchData();
+}
+
+// ═══════════════════════════════════════════
+//  FETCH DATOS
+// ═══════════════════════════════════════════
+async function fetchData() {
+  if (!apiUrl) { loadDemoData(); return; }
+
+  setStatus('loading');
+  hideError();
+
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.status === 'error') throw new Error(json.message);
+
+    renderDashboard(json.data);
+    setStatus('ok');
+    document.getElementById('last-update').innerHTML =
+      'Última actualización:<br>' + new Date().toLocaleTimeString('es-AR');
+
+    // Auto-refresh
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(fetchData, REFRESH_INTERVAL_MS);
+
+  } catch (err) {
+    setStatus('error');
+    showError('Error al conectar con la API: ' + err.message +
+      '. Verificá que la URL sea correcta y que el script esté desplegado correctamente.');
+    loadDemoData(true);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════
+function renderDashboard(data) {
+  // KPIs
+  animateValue('kpi-dem-inst', data.kpis.demora_promedio_instalacion);
+  animateValue('kpi-dem-rep',  data.kpis.demora_promedio_reparacion);
+  animateValue('kpi-dem-mud',  data.kpis.demora_promedio_mudanzas);
+
+  // Tabla
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+
+  if (!data.localidades || data.localidades.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="16" style="text-align:center;color:var(--muted);padding:2rem">Sin datos</td></tr>';
+    return;
+  }
+
+  data.localidades.forEach(loc => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-loc">${loc.localidad}</td>
+      <td>${fmt(loc.instalacion.pactados)}</td>
+      <td class="${loc.instalacion.vencidos > 0 ? 'vencido' : 'zero'}">${fmt(loc.instalacion.vencidos)}</td>
+      <td>${fmt(loc.instalacion.total)}</td>
+      <td>${fmt(loc.reparacion.pactados)}</td>
+      <td class="${loc.reparacion.vencidos > 0 ? 'vencido' : 'zero'}">${fmt(loc.reparacion.vencidos)}</td>
+      <td>${fmt(loc.reparacion.total)}</td>
+      <td>${fmt(loc.mudanzas.pactados)}</td>
+      <td class="${loc.mudanzas.vencidos > 0 ? 'vencido' : 'zero'}">${fmt(loc.mudanzas.vencidos)}</td>
+      <td>${fmt(loc.mudanzas.total)}</td>
+      <td>${fmt(loc.totales.pactados)}</td>
+      <td class="${loc.totales.vencidos > 0 ? 'vencido' : 'zero'}">${fmt(loc.totales.vencidos)}</td>
+      <td>${fmt(loc.totales.total)}</td>
+      <td class="${loc.demora.instalacion > 0 ? 'demora' : 'zero'}">${fmt(loc.demora.instalacion)}</td>
+      <td class="${loc.demora.reparacion  > 0 ? 'demora' : 'zero'}">${fmt(loc.demora.reparacion)}</td>
+      <td class="${loc.demora.mudanzas    > 0 ? 'demora' : 'zero'}">${fmt(loc.demora.mudanzas)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  DEMO DATA (cuando no hay API)
+// ═══════════════════════════════════════════
+function loadDemoData(keepError = false) {
+  document.getElementById('demo-badge').style.display = 'inline-block';
+  const demo = {
+    kpis: {
+      demora_promedio_instalacion: 4.2,
+      demora_promedio_reparacion:  2.8,
+      demora_promedio_mudanzas:    6.1,
+    },
+    localidades: [
+      { localidad: "Río Gallegos",  instalacion:{pactados:12,vencidos:2,total:14},  reparacion:{pactados:8,vencidos:1,total:9},   mudanzas:{pactados:3,vencidos:0,total:3},  totales:{pactados:23,vencidos:3,total:26},  demora:{instalacion:3.5,reparacion:2.1,mudanzas:5.0} },
+      { localidad: "Calafate",      instalacion:{pactados:7,vencidos:3,total:10},   reparacion:{pactados:4,vencidos:2,total:6},   mudanzas:{pactados:2,vencidos:1,total:3},  totales:{pactados:13,vencidos:6,total:19},  demora:{instalacion:5.0,reparacion:3.5,mudanzas:7.2} },
+      { localidad: "Puerto Madryn", instalacion:{pactados:15,vencidos:0,total:15},  reparacion:{pactados:11,vencidos:0,total:11}, mudanzas:{pactados:5,vencidos:2,total:7},  totales:{pactados:31,vencidos:2,total:33},  demora:{instalacion:4.1,reparacion:2.8,mudanzas:6.0} },
+      { localidad: "Comodoro",      instalacion:{pactados:20,vencidos:5,total:25},  reparacion:{pactados:14,vencidos:3,total:17}, mudanzas:{pactados:8,vencidos:0,total:8},  totales:{pactados:42,vencidos:8,total:50},  demora:{instalacion:4.5,reparacion:3.2,mudanzas:6.5} },
+      { localidad: "Ushuaia",       instalacion:{pactados:9,vencidos:1,total:10},   reparacion:{pactados:6,vencidos:0,total:6},   mudanzas:{pactados:4,vencidos:2,total:6},  totales:{pactados:19,vencidos:3,total:22},  demora:{instalacion:3.8,reparacion:2.4,mudanzas:5.8} },
+    ]
+  };
+  renderDashboard(demo);
+  if (!keepError) {
+    document.getElementById('last-update').innerHTML = 'Modo demo<br>(sin API conectada)';
+  }
+  hideLoading();
+}
+
+// ═══════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════
+function fmt(n) {
+  if (n === 0) return '<span style="color:var(--border)">0</span>';
+  return n % 1 === 0 ? n : n.toFixed(1);
+}
+
+function animateValue(id, target) {
+  const el = document.getElementById(id);
+  let start = 0;
+  const step = target / 20;
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) { start = target; clearInterval(timer); }
+    el.textContent = start % 1 === 0 ? Math.round(start) : start.toFixed(1);
+  }, 30);
+}
+
+function setStatus(state) {
+  const dot = document.getElementById('status-dot');
+  dot.className = state === 'ok' ? 'ok' : (state === 'error' ? 'error' : '');
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideError() { document.getElementById('error-msg').style.display = 'none'; }
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  el.classList.add('hidden');
+  setTimeout(() => el.style.display = 'none', 400);
+}
+</script>
+</body>
+</html>
