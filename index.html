@@ -275,6 +275,13 @@ td.zero { color:var(--border); }
 #loc-dropdown:focus { border-color:var(--accent); background-color:var(--surface); }
 #loc-dropdown option { background:var(--surface2); color:var(--text); }
 
+/* ── TICKET UNIT ── */
+.kpi-mini-row { display:flex; align-items:baseline; gap:.4rem; }
+.kpi-ticket-unit {
+  font-family:'Poppins',sans-serif; font-size:.65rem; font-weight:500;
+  color:var(--muted); letter-spacing:.05em; text-transform:lowercase;
+}
+
 /* ── FOOTER UPDATE ── */
 .update-footer {
   padding:.8rem 0; display:flex; justify-content:flex-end; align-items:center; gap:.5rem;
@@ -441,28 +448,23 @@ td.vencido { color:var(--accent2); font-weight:700; }
     <div class="kpi-row">
       <div class="kpi-mini">
         <div class="kpi-mini-label">Instalación</div>
-        <div class="kpi-mini-val inst" id="kpi-inst">—</div>
-        
+        <div class="kpi-mini-row"><div class="kpi-mini-val inst" id="kpi-inst">—</div><span class="kpi-ticket-unit">tickets</span></div>
       </div>
       <div class="kpi-mini">
         <div class="kpi-mini-label">Reparación</div>
-        <div class="kpi-mini-val rep" id="kpi-rep">—</div>
-        
+        <div class="kpi-mini-row"><div class="kpi-mini-val rep" id="kpi-rep">—</div><span class="kpi-ticket-unit">tickets</span></div>
       </div>
       <div class="kpi-mini">
         <div class="kpi-mini-label">Mudanzas</div>
-        <div class="kpi-mini-val mud" id="kpi-mud">—</div>
-        
+        <div class="kpi-mini-row"><div class="kpi-mini-val mud" id="kpi-mud">—</div><span class="kpi-ticket-unit">tickets</span></div>
       </div>
       <div class="kpi-mini">
         <div class="kpi-mini-label">Vencidos</div>
-        <div class="kpi-mini-val venc" id="kpi-venc">—</div>
-        
+        <div class="kpi-mini-row"><div class="kpi-mini-val venc" id="kpi-venc">—</div><span class="kpi-ticket-unit">tickets</span></div>
       </div>
       <div class="kpi-mini">
         <div class="kpi-mini-label">Totales</div>
-        <div class="kpi-mini-val tot" id="kpi-tot">—</div>
-        
+        <div class="kpi-mini-row"><div class="kpi-mini-val tot" id="kpi-tot">—</div><span class="kpi-ticket-unit">tickets</span></div>
       </div>
     </div>
   </div>
