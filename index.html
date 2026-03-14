@@ -48,12 +48,7 @@
     font-size:.65rem; cursor:pointer; transition:all .2s;
   }
   #btn-refresh:hover { border-color:var(--accent); color:var(--accent); }
-  #btn-config {
-    background:transparent; border:1px solid var(--border); color:var(--muted);
-    padding:.35rem .7rem; border-radius:7px; font-size:.9rem;
-    cursor:pointer; transition:all .2s; line-height:1;
-  }
-  #btn-config:hover { border-color:var(--accent); transform:rotate(30deg); }
+
 
   /* ── TABS ── */
   .tabs {
@@ -186,60 +181,6 @@
   tbody td { padding:.65rem .8rem; text-align:center; color:var(--text); }
   tbody td.td-loc2 { text-align:left; font-weight:600; padding-left:1.2rem; font-family:'Syne',sans-serif; font-size:.78rem; }
 
-  /* ── CONFIG ── */
-  .config-card {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:14px; padding:1.8rem 2rem; max-width:600px;
-  }
-  .config-card h3 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; margin-bottom:.4rem; }
-  .config-card p { font-size:.75rem; color:var(--muted); line-height:1.6; margin-bottom:1.2rem; }
-  .config-card p strong { color:var(--accent); }
-  #api-url-input {
-    width:100%; background:var(--bg); border:1px solid var(--border);
-    color:var(--text); padding:.6rem 1rem; border-radius:8px;
-    font-family:'DM Mono',monospace; font-size:.73rem; outline:none;
-    transition:border-color .2s; margin-bottom:.8rem;
-  }
-  #api-url-input:focus { border-color:var(--accent); }
-  #btn-connect {
-    background:var(--accent); color:#0d0f14; border:none;
-    padding:.55rem 1.5rem; border-radius:8px;
-    font-family:'Syne',sans-serif; font-weight:700; font-size:.78rem;
-    cursor:pointer; letter-spacing:.05em; transition:opacity .2s;
-  }
-  #btn-connect:hover { opacity:.85; }
-  #connect-status { font-size:.7rem; margin-top:.8rem; min-height:1.2rem; }
-  .threshold-table { width:100%; border-collapse:collapse; margin-top:.8rem; font-size:.75rem; }
-  .threshold-table th { background:var(--surface2); padding:.6rem .8rem; text-align:left; font-family:'Syne',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
-  .threshold-table th:not(:first-child) { text-align:center; color:var(--text); }
-  .threshold-table td { padding:.5rem .8rem; border-bottom:1px solid var(--border); color:var(--text); }
-  .threshold-table tr:last-child td { border-bottom:none; }
-  .threshold-table td:first-child { font-family:'Syne',sans-serif; font-weight:600; font-size:.75rem; }
-  .threshold-input {
-    width:70px; background:var(--bg); border:1px solid var(--border);
-    color:var(--text); padding:.3rem .5rem; border-radius:6px;
-    font-family:'DM Mono',monospace; font-size:.75rem; text-align:center; outline:none;
-    transition:border-color .2s;
-  }
-  .threshold-input:focus { border-color:var(--accent); }
-  #btn-save-thresholds {
-    background:var(--surface2); color:var(--accent); border:1px solid var(--accent);
-    padding:.5rem 1.2rem; border-radius:8px; font-family:'Syne',sans-serif;
-    font-weight:700; font-size:.75rem; cursor:pointer; margin-top:1rem;
-    transition:all .2s; letter-spacing:.05em;
-  }
-  #btn-save-thresholds:hover { background:var(--accent); color:#0d0f14; }
-  #threshold-status { font-size:.7rem; color:var(--accent); margin-top:.5rem; min-height:1rem; }
-  #connect-status.ok    { color:var(--accent); }
-  #connect-status.error { color:var(--accent2); }
-
-  .demo-badge {
-    display:inline-block; background:rgba(255,209,102,.15); color:var(--accent3);
-    border:1px solid rgba(255,209,102,.3); border-radius:6px;
-    padding:.15rem .5rem; font-size:.58rem; letter-spacing:.1em;
-    text-transform:uppercase; margin-left:.6rem; vertical-align:middle;
-  }
-
   /* ── ERROR ── */
   #error-msg {
     background:rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.3);
@@ -256,49 +197,6 @@
   .update-footer .uf-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
   .update-footer span { font-size:.68rem; color:var(--muted); }
   .update-footer strong { color:var(--text); font-weight:500; }
-
-  /* ── MODAL CONTRASEÑA ── */
-  #pwd-overlay {
-    position:fixed; inset:0; background:rgba(13,15,20,.92);
-    backdrop-filter:blur(8px);
-    display:flex; align-items:center; justify-content:center;
-    z-index:200;
-  }
-  #pwd-overlay.hidden { display:none; }
-  .pwd-box {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; padding:2rem 2.4rem; width:100%; max-width:360px;
-    text-align:center;
-  }
-  .pwd-box .pwd-icon { font-size:2rem; margin-bottom:.8rem; }
-  .pwd-box h3 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; margin-bottom:.4rem; }
-  .pwd-box p { font-size:.72rem; color:var(--muted); margin-bottom:1.2rem; }
-  #pwd-input {
-    width:100%; background:var(--bg); border:1px solid var(--border);
-    color:var(--text); padding:.6rem 1rem; border-radius:8px;
-    font-family:'DM Mono',monospace; font-size:.85rem; outline:none;
-    text-align:center; letter-spacing:.12em; transition:border-color .2s;
-    margin-bottom:.8rem;
-  }
-  #pwd-input:focus { border-color:var(--accent); }
-  #pwd-input.wrong { border-color:var(--accent2); animation:shake .3s; }
-  @keyframes shake {
-    0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
-  }
-  .pwd-btns { display:flex; gap:.6rem; }
-  #btn-pwd-ok {
-    flex:1; background:var(--accent); color:#0d0f14; border:none;
-    padding:.55rem; border-radius:8px; font-family:'Syne',sans-serif;
-    font-weight:700; font-size:.78rem; cursor:pointer; transition:opacity .2s;
-  }
-  #btn-pwd-ok:hover { opacity:.85; }
-  #btn-pwd-cancel {
-    background:transparent; border:1px solid var(--border); color:var(--muted);
-    padding:.55rem 1rem; border-radius:8px; font-family:'DM Mono',monospace;
-    font-size:.72rem; cursor:pointer; transition:all .2s;
-  }
-  #btn-pwd-cancel:hover { border-color:var(--accent2); color:var(--accent2); }
-  #pwd-error { font-size:.68rem; color:var(--accent2); min-height:1rem; margin-bottom:.4rem; }
 
   /* ── MOBILE ── */
   @media(max-width:768px) {
@@ -381,7 +279,6 @@
     <div id="last-update"></div>
     <div id="status-dot"></div>
     <button id="btn-refresh" onclick="fetchData()">↻</button>
-    <button id="btn-config" onclick="switchTab('config')" title="Configuración">⚙️</button>
   </div>
 </header>
 
@@ -471,35 +368,6 @@
   </div>
 </div>
 
-<!-- ══ MODAL CONTRASEÑA ══ -->
-<div id="pwd-overlay" class="hidden">
-  <div class="pwd-box">
-    <div class="pwd-icon">🔒</div>
-    <h3>Acceso restringido</h3>
-    <p>Ingresá la contraseña para acceder a la configuración</p>
-    <input id="pwd-input" type="password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')checkPwd()">
-    <div id="pwd-error"></div>
-    <div class="pwd-btns">
-      <button id="btn-pwd-cancel" onclick="closePwd()">Cancelar</button>
-      <button id="btn-pwd-ok" onclick="checkPwd()">Ingresar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ TAB: CONFIG ══ -->
-<div id="tab-config" class="tab-panel">
-  <div class="config-card" style="margin-bottom:1.5rem">
-    <h3>🔗 Conexión con Google Sheets</h3>
-    <p>Pegá la URL de tu <strong>Apps Script desplegado</strong> (termina en <strong>/exec</strong>)</p>
-    <p style="margin-top:.5rem;font-size:.7rem">💡 Los umbrales de alarma se leen automáticamente de la hoja <strong>CUPOS</strong> de tu planilla.</p>
-    <input id="api-url-input" type="text" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
-    <br>
-    <button id="btn-connect" onclick="connectAPI()">Conectar y actualizar</button>
-    <div id="connect-status"></div>
-  </div>
-
-
-</div>
 
 <script>
 // ════════════════════════════════════════
@@ -509,13 +377,11 @@ const LS_KEY = 'dashboard_api_url';
 const CACHE_VER = '2.1';
 
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzBZ7kv4PBglv7hzC_o7QB0QERtR5XFhSXwMTtljLEjp7ImHSufczIL_5wqFOCJcX-v/exec';
-const CONFIG_PWD = '98fnBUzcNR7w';
 let apiUrl = '';
 let allData = null;
 let selectedRow = null;
 let cbCounter = 0;
 let refreshTimer = null;
-let configUnlocked = false;
 
 // ════════════════════════════════════════
 //  INIT
@@ -538,73 +404,16 @@ window.addEventListener('DOMContentLoaded', function() {
 //  TABS
 // ════════════════════════════════════════
 function switchTab(name) {
-  if (name === 'config' && !configUnlocked) {
-    openPwd();
-    return;
-  }
   document.querySelectorAll('.tab-btn').forEach(function(b,i) {
-    b.classList.toggle('active', ['demoras','detalle','config'][i] === name);
+    b.classList.toggle('active', ['demoras','detalle'][i] === name);
   });
   document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ════════════════════════════════════════
-//  CONTRASEÑA
-// ════════════════════════════════════════
-function openPwd() {
-  document.getElementById('pwd-overlay').classList.remove('hidden');
-  document.getElementById('pwd-input').value = '';
-  document.getElementById('pwd-error').textContent = '';
-  document.getElementById('pwd-input').classList.remove('wrong');
-  setTimeout(function(){ document.getElementById('pwd-input').focus(); }, 100);
-}
-function closePwd() {
-  document.getElementById('pwd-overlay').classList.add('hidden');
-}
-function checkPwd() {
-  var val = document.getElementById('pwd-input').value;
-  if (val === CONFIG_PWD) {
-    configUnlocked = true;
-    closePwd();
-    switchTab('config');
-  } else {
-    var inp = document.getElementById('pwd-input');
-    inp.classList.add('wrong');
-    document.getElementById('pwd-error').textContent = 'Contraseña incorrecta';
-    setTimeout(function(){ inp.classList.remove('wrong'); }, 400);
-    inp.value = '';
-  }
-}
 
-// ════════════════════════════════════════
-//  CONNECT
-// ════════════════════════════════════════
-function connectAPI() {
-  var input = document.getElementById('api-url-input').value.trim();
-  if (!input.startsWith('http')) {
-    setConnectStatus('error', 'URL inválida. Debe empezar con https://');
-    return;
-  }
-  apiUrl = input;
-  localStorage.setItem(LS_KEY, apiUrl);
-  document.getElementById('demo-badge').style.display = 'none';
-  setConnectStatus('', 'Conectando...');
-  fetchData(function(ok) {
-    if (ok) {
-      setConnectStatus('ok', '✓ Conectado correctamente');
-      switchTab('demoras');
-    } else {
-      setConnectStatus('error', '✗ No se pudo conectar. Revisá la URL y el deploy.');
-    }
-  });
-}
 
-function setConnectStatus(cls, msg) {
-  var el = document.getElementById('connect-status');
-  el.className = cls;
-  el.textContent = msg;
-}
+
 
 // ════════════════════════════════════════
 //  FETCH (JSONP)
