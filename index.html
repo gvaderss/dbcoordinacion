@@ -107,8 +107,8 @@ header {
   margin-bottom:1.4rem; flex-wrap:wrap; gap:.5rem;
 }
 .loc-name {
-  font-family:'Space Mono',monospace; font-size:1.8rem;
-  font-weight:700; text-transform:uppercase; letter-spacing:-.02em;
+  font-family:'Nunito',sans-serif; font-size:1.8rem;
+  font-weight:900; text-transform:uppercase; letter-spacing:-.01em;
   color:var(--accent3); line-height:1;
 }
 .loc-subtitle { font-size:.65rem; color:var(--muted); margin-top:.3rem; letter-spacing:.08em; }
@@ -145,7 +145,7 @@ header {
 }
 .dc-main { display:flex; align-items:baseline; gap:.4rem; margin-bottom:.7rem; }
 .dc-value {
-  font-family:'Space Mono',monospace; font-size:2.8rem; font-weight:700;
+  font-family:Tahoma,'Trebuchet MS',sans-serif; font-size:2.8rem; font-weight:700;
   color:var(--dc-color); line-height:1;
 }
 .dc-unit {
@@ -183,7 +183,7 @@ header {
   letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
 }
 .kpi-mini-val {
-  font-family:'Space Mono',monospace; font-size:1.6rem; font-weight:700;
+  font-family:Tahoma,'Trebuchet MS',sans-serif; font-size:1.6rem; font-weight:700;
   line-height:1;
 }
 .kpi-mini-val.inst { color:var(--inst); }
@@ -279,12 +279,16 @@ td.zero { color:var(--border); }
 
 /* ── TABLA DETALLE ── */
 .table-wrapper { overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
-table { width:100%; border-collapse:collapse; font-size:.72rem; white-space:nowrap; }
+table { width:100%; border-collapse:collapse; font-size:.72rem; white-space:nowrap; min-width:600px; }
 thead tr.group-header th {
   background:var(--surface2); padding:.6rem 1rem; text-align:center;
-  font-family:'Space Mono',monospace; font-weight:700; font-size:.65rem;
+  font-family:'Nunito',sans-serif; font-weight:700; font-size:.65rem;
   letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
   border-bottom:1px solid var(--border);
+}
+thead tr.group-header th:first-child {
+  text-align:left; position:sticky; left:0; z-index:3;
+  background:var(--surface2); box-shadow:2px 0 6px rgba(0,0,0,.3);
 }
 thead tr.group-header th.th-inst { color:var(--inst); border-bottom-color:var(--inst); }
 thead tr.group-header th.th-rep  { color:var(--rep);  border-bottom-color:var(--rep); }
@@ -294,7 +298,7 @@ thead tr.sub-header th {
   background:var(--surface); padding:.45rem .8rem; text-align:center;
   font-size:.58rem; letter-spacing:.1em; text-transform:uppercase;
   color:var(--muted); border-bottom:2px solid var(--border);
-  font-family:'Space Mono',monospace; font-weight:700;
+  font-family:'Nunito',sans-serif; font-weight:700;
 }
 tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
 tbody tr:last-child { border-bottom:none; }
@@ -302,8 +306,11 @@ tbody tr:hover { background:rgba(255,255,255,.02); }
 tbody td { padding:.6rem .8rem; text-align:center; color:var(--text); }
 tbody td.td-loc2 {
   text-align:left; font-weight:700; padding-left:1.2rem;
-  font-family:'Space Mono',monospace; font-size:.82rem; letter-spacing:.02em;
+  font-family:'Nunito',sans-serif; font-size:.82rem; letter-spacing:.02em;
+  position:sticky; left:0; z-index:1;
+  background:var(--surface); box-shadow:2px 0 6px rgba(0,0,0,.2);
 }
+tbody tr:hover td.td-loc2 { background:rgba(255,255,255,.02); }
 td.vencido { color:var(--accent2); font-weight:700; }
 
 /* ── MOBILE ── */
@@ -701,13 +708,15 @@ function showDemora(loc, i) {
       stat.style.color = alarm ? 'var(--accent2)' : (th && t.val > th * 0.7 ? 'var(--accent3)' : 'var(--muted)');
     }
 
-    // Ícono alarma
+    // Ícono alarma — aparece después de la palabra DÍAS (dc-unit)
     var existing = el.parentNode.querySelector('.alarm-icon');
     if (existing) existing.remove();
     if (alarm) {
       var icon = document.createElement('span');
       icon.className = 'alarm-icon';
-      el.parentNode.insertBefore(icon, el.nextSibling);
+      var unit = el.parentNode.querySelector('.dc-unit');
+      if (unit) unit.parentNode.insertBefore(icon, unit.nextSibling);
+      else el.parentNode.insertBefore(icon, el.nextSibling);
     }
   });
 
@@ -774,6 +783,12 @@ function fmt(n) { return n%1===0 ? n : n.toFixed(1); }
 function cleanLoc(s) { return String(s).replace(/\(\d+\)\s*Santa Cruz\s*/gi,function(m){return m.replace(/\s*Santa Cruz\s*/i,'');}).trim(); }
 function esc(s) { return cleanLoc(String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
+function fmtBig(n) {
+  // Entero normal, decimal con sup más pequeño
+  if (n % 1 === 0) return String(Math.round(n));
+  var parts = n.toFixed(1).split('.');
+  return parts[0] + '<span style="font-size:.55em;opacity:.85">.' + parts[1] + '</span>';
+}
 function animateValue(id, target) {
   var el = document.getElementById(id);
   if (!el) return;
@@ -781,7 +796,7 @@ function animateValue(id, target) {
   var t = setInterval(function() {
     count++; start+=step;
     if (count>=steps){start=target;clearInterval(t);}
-    el.textContent = start%1===0 ? Math.round(start) : start.toFixed(1);
+    el.innerHTML = fmtBig(start%1===0 ? Math.round(start) : parseFloat(start.toFixed(1)));
   },25);
 }
 
