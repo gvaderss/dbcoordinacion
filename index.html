@@ -222,9 +222,10 @@ header {
 }
 .loc-table thead th:first-child {
   text-align:left;
-  position:sticky; left:0; z-index:2;
+  position:sticky; left:0; z-index:3;
   background:var(--surface2);
-  box-shadow:2px 0 6px rgba(0,0,0,.3);
+  box-shadow:4px 0 8px var(--bg);
+  min-width:160px;
 }
 .loc-table tbody tr {
   border-bottom:1px solid var(--border); cursor:pointer;
@@ -237,15 +238,16 @@ header {
 .loc-table tbody td.td-loc {
   text-align:left; font-family:'Nunito',sans-serif; font-weight:700;
   font-size:.88rem; letter-spacing:.02em;
-  position:sticky; left:0; z-index:1;
+  position:sticky; left:0; z-index:2;
   background:var(--surface);
-  box-shadow:2px 0 6px rgba(0,0,0,.2);
+  box-shadow:4px 0 8px var(--bg);
+  min-width:160px;
 }
 .loc-table tbody tr.selected td.td-loc {
   color:var(--accent);
-  background:rgba(79,255,176,.05);
+  background:#0f1a14;
 }
-.loc-table tbody tr:hover td.td-loc { background:rgba(255,255,255,.02); }
+.loc-table tbody tr:hover td.td-loc { background:#14171f; }
 td.alarm-cell { color:var(--accent2) !important; font-weight:700; }
 td.zero { color:var(--border); }
 
@@ -287,8 +289,9 @@ thead tr.group-header th {
   border-bottom:1px solid var(--border);
 }
 thead tr.group-header th:first-child {
-  text-align:left; position:sticky; left:0; z-index:3;
-  background:var(--surface2); box-shadow:2px 0 6px rgba(0,0,0,.3);
+  text-align:left; position:sticky; left:0; z-index:4;
+  background:var(--surface2); box-shadow:4px 0 8px var(--bg);
+  min-width:160px;
 }
 thead tr.group-header th.th-inst { color:var(--inst); border-bottom-color:var(--inst); }
 thead tr.group-header th.th-rep  { color:var(--rep);  border-bottom-color:var(--rep); }
@@ -307,10 +310,11 @@ tbody td { padding:.6rem .8rem; text-align:center; color:var(--text); }
 tbody td.td-loc2 {
   text-align:left; font-weight:700; padding-left:1.2rem;
   font-family:'Nunito',sans-serif; font-size:.82rem; letter-spacing:.02em;
-  position:sticky; left:0; z-index:1;
-  background:var(--surface); box-shadow:2px 0 6px rgba(0,0,0,.2);
+  position:sticky; left:0; z-index:2;
+  background:var(--surface); box-shadow:4px 0 8px var(--bg);
+  min-width:160px;
 }
-tbody tr:hover td.td-loc2 { background:rgba(255,255,255,.02); }
+tbody tr:hover td.td-loc2 { background:#14171f; }
 td.vencido { color:var(--accent2); font-weight:700; }
 
 /* ── MOBILE ── */
